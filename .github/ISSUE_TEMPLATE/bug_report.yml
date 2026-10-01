@@ -1,0 +1,30 @@
+name: 问题反馈 / Bug report
+description: 使用脱敏示例报告问题
+title: "[问题] "
+body:
+  - type: markdown
+    attributes:
+      value: "这是公开反馈。请不要上传真实凭据、Token、个人数据或业务文件。"
+  - type: input
+    id: version
+    attributes:
+      label: 应用与 macOS 版本
+      placeholder: 砚 1.0，macOS 13，Apple Silicon / Intel
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 预期和实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: 脱敏示例与截图（可选）
