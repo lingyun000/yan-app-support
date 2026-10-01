@@ -16,3 +16,9 @@ macOS 应用“砚”的公开支持网站、隐私政策和真实界面截图�
 2026-10-01 更新：实际应用深色界面，编辑器采用午夜蓝主题。最终文件为 `assets/editor.jpg`、`tools.jpg`、`base64.jpg`、`http.jpg`，RGB JPEG，2880 × 1800。只使用虚构示例数据；HTTP 为本地演示服务的实际 200 响应。
 
 排版源文件位于 `screenshots/`。原始截图未发布：截取时把控制光标移至顶栏，再通过 HTML/CSS 容器裁掉顶部 110 像素的控制标记区域，其余界面保留真实像素。浏览器完整页面导出为 JPEG。AI 清理曾试用，但会影响小字，未采用生成结果。复现时将原始截图放在 `assets/*-dark-raw.png`（已忽略）。
+
+## Website languages and demo
+
+The overview, support page and complete privacy policy provide English and Chinese. First visits default to English; the language switch remembers the reader's selection locally. No analytics are added.
+
+`assets/yan-demo-launch.mp4` is the developer-provided real Mac recording from 2026-10-01 14:05:52, showing launch and typical use. It is published with the developer's authorization. The MP4 is remuxed for progressive playback without changing its picture or sound. The original recording remains on the developer's Mac.
