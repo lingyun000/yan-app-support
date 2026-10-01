@@ -21,4 +21,4 @@ macOS 应用“砚”的公开支持网站、隐私政策和真实界面截图�
 
 The overview, support page and complete privacy policy provide English and Chinese. First visits default to English; the language switch remembers the reader's selection locally. No analytics are added.
 
-`assets/yan-demo-launch.mp4` is the developer-provided real Mac recording from 2026-10-01 14:05:52, showing launch and typical use. It is published with the developer's authorization. The MP4 is remuxed for progressive playback without changing its picture or sound. The original recording remains on the developer's Mac.
+`assets/yan-demo-web.mp4` is the developer-provided real Mac recording from 2026-10-01 14:05:52, showing launch and typical use. It is published with the developer's authorization. The web MP4 is compressed from 17.8 MB to about 1.7 MB at 1280 px width, with progressive playback. Video data is not loaded until requested. The full-resolution original recording remains on the developer's Mac and in the Apple review attachment. English gallery images are real frames from the developer's English-interface recording. Chinese pages retain the Chinese screenshots.
