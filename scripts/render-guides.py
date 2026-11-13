@@ -43,7 +43,7 @@ def render_guide(path):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="{escape(title)} · 砚插件平台开发预览">
+  <meta name="description" content="{escape(title)} · 砚插件开发文档">
   <title>{escape(title)} · 砚</title>
   <link rel="icon" href="../assets/icon.png">
   <link rel="stylesheet" href="../style.css?v=4">

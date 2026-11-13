@@ -5,7 +5,7 @@ macOS 应用“砚”的公开支持网站、隐私政策和真实界面截图�
 - [在 Mac App Store 下载砚](https://apps.apple.com/cn/app/yan-editor/id6817160882?mt=12)
 - 网站：https://lingyun000.github.io/yan-app-support/
 - 隐私政策：https://lingyun000.github.io/yan-app-support/privacy.html
-- 插件开发预览：https://lingyun000.github.io/yan-app-support/plugins.html
+- 插件开发文档：https://lingyun000.github.io/yan-app-support/plugins.html
 - [插件效果示例与界面区域](https://lingyun000.github.io/yan-app-support/docs/plugin-examples.html)
 - 使用支持：https://lingyun000.github.io/yan-app-support/support.html
 - 反馈：https://github.com/lingyun000/yan-app-support/issues
@@ -35,4 +35,4 @@ python3 -m pip install markdown-it-py==4.3.0
 python3 scripts/render-guides.py
 ```
 
-更新插件清单时同步检查 `docs/schemas/` 的 schema 文件。发布支持插件导入的应用版本后，更新文档入口和两份手册的兼容说明。
+更新插件清单时同步检查 `docs/schemas/` 的 schema 文件。插件兼容要求变化时，同步更新文档入口、手册和示例。
