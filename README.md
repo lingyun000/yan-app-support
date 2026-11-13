@@ -10,6 +10,16 @@ macOS 应用“砚”的公开支持网站、隐私政策和真实界面截图�
 - 使用支持：https://lingyun000.github.io/yan-app-support/support.html
 - 反馈：https://github.com/lingyun000/yan-app-support/issues
 
+## App 实机截图
+
+| 多标签编辑与 JSON 格式化 | 开发工具箱 |
+| --- | --- |
+| [![多标签文本编辑、JSON 格式化与校验](assets/editor.jpg)](assets/editor.jpg) | [![搜索、收藏和打开常用开发工具](assets/tools.jpg)](assets/tools.jpg) |
+
+| Base64 编解码 | HTTP / API 工作台 |
+| --- | --- |
+| [![Base64 与 Base64URL 双向转换](assets/base64.jpg)](assets/base64.jpg) | [![查看 HTTP 请求和响应](assets/http.jpg)](assets/http.jpg) |
+
 通过 GitHub Pages 从 `main` 分支根目录发布。修改隐私政策时更新日期，并同时核对应用内链接、隐私清单和 App Store Connect 声明。
 
 截图使用虚构的演示数据。应用版本与上架状态以 App Store 为准。
