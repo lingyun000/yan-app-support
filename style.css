@@ -10,3 +10,4 @@ nav{flex-wrap:wrap;row-gap:8px}
 .guide blockquote{border-left:3px solid #83a8ff;background:#17253c;margin:20px 0;padding:4px 18px}
 .guide [id]{scroll-margin-top:20px}
 .guide table{display:table}
+.guide img{display:block;width:100%;height:auto;border:1px solid #293952;border-radius:12px}

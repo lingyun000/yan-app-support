@@ -46,7 +46,7 @@ def render_guide(path):
   <meta name="description" content="{escape(title)} · 砚插件平台开发预览">
   <title>{escape(title)} · 砚</title>
   <link rel="icon" href="../assets/icon.png">
-  <link rel="stylesheet" href="../style.css?v=3">
+  <link rel="stylesheet" href="../style.css?v=4">
 </head>
 <body>
   <header>
