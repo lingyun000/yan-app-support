@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="扩展开发手册 · 砚插件平台开发预览">
+  <title>扩展开发手册 · 砚</title>
+  <link rel="icon" href="../assets/icon.png">
+  <link rel="stylesheet" href="../style.css?v=3">
+</head>
+<body>
+  <header>
+    <a class="brand" href="../index.html"><img src="../assets/icon.png" alt="">砚</a>
+    <nav aria-label="主导航">
+      <a href="../index.html">概览</a>
+      <a href="../plugins.html">插件开发</a>
+      <a href="../support.html">支持</a>
+    </nav>
+  </header>
+  <main class="document guide">
+    <article>
+<h1 id="扩展开发手册">扩展开发手册</h1>
+<blockquote>
+<p><strong>开发预览</strong>。本手册对应开发中的插件框架，当前 Mac App Store 版 1.0.3 尚未提供插件导入。上手步骤需要带有插件中心的构建。</p>
+</blockquote>
+<blockquote>
+<p>本手册讲<strong>声明式贡献</strong>：语言、语法高亮、主题、快捷键、文本工具与分类、工作区工具，以及格式化/预览/校验的裁决规则。用 JavaScript 实现的功能（命令、文本动作、预览器、面板、校验器、格式化器、悬停、补全、状态栏……）见 <a href="plugin-guide.html">插件开发手册</a>。</p>
+<p>清单格式有 JSON Schema：<a href="schemas/plugin.schema.json">schemas/plugin.schema.json</a>（插件）、<a href="schemas/extension.schema.json">schemas/extension.schema.json</a>（内置扩展）、<a href="schemas/contributions.schema.json">schemas/contributions.schema.json</a>（两者共用的条目）。</p>
+</blockquote>
+<h2 id="目录">目录</h2>
+<ol>
+<li><a href="#1-%E6%A6%82%E5%BF%B5">概念</a></li>
+<li><a href="#2-%E4%BA%94%E5%88%86%E9%92%9F%E4%B8%8A%E6%89%8B%E4%B8%80%E4%B8%AA%E7%BA%AF%E5%A3%B0%E6%98%8E%E5%BC%8F%E6%8F%92%E4%BB%B6">五分钟上手：一个纯声明式插件</a></li>
+<li><a href="#3-%E6%B8%85%E5%8D%95">清单</a></li>
+<li><a href="#4-%E5%8A%A0%E8%BD%BD%E5%86%B2%E7%AA%81%E4%B8%8E%E7%94%9F%E6%95%88">加载、冲突与生效</a></li>
+<li><a href="#5-%E8%AF%AD%E8%A8%80-languageslanguagegroups">语言 <code>languages</code>、<code>languageGroups</code></a></li>
+<li><a href="#6-%E8%AF%AD%E6%B3%95%E9%AB%98%E4%BA%AE-grammars">语法高亮 <code>grammars</code></a></li>
+<li><a href="#7-%E4%B8%BB%E9%A2%98-themes">主题 <code>themes</code></a></li>
+<li><a href="#8-%E5%BF%AB%E6%8D%B7%E9%94%AE-keybindings">快捷键 <code>keybindings</code></a></li>
+<li><a href="#9-%E6%96%87%E6%9C%AC%E5%B7%A5%E5%85%B7-texttoolstoolcategories">文本工具 <code>textTools</code>、<code>toolCategories</code></a></li>
+<li><a href="#10-%E5%B7%A5%E4%BD%9C%E5%8C%BA%E5%B7%A5%E5%85%B7">工作区工具</a></li>
+<li><a href="#11-%E6%A0%BC%E5%BC%8F%E5%8C%96%E9%A2%84%E8%A7%88%E4%B8%8E%E6%A0%A1%E9%AA%8C">格式化、预览与校验</a></li>
+<li><a href="#12-%E8%AF%8A%E6%96%AD%E4%B8%8E%E6%8E%92%E9%94%99">诊断与排错</a></li>
+<li><a href="#13-%E5%8F%91%E5%B8%83%E9%A1%BB%E7%9F%A5">发布须知</a></li>
+<li><a href="#14-%E5%86%85%E7%BD%AE%E6%89%A9%E5%B1%95%E4%B8%80%E8%A7%88">内置扩展一览</a></li>
+</ol>
+<hr />
+<h2 id="1-概念">1. 概念</h2>
+<p>应用本身只有<strong>扩展内核</strong>、编辑器引擎和窗口外壳。语言、语法、主题、快捷键、文本工具、工作区工具、格式化器、预览器、校验器都是<strong>扩展</strong>提供的<strong>贡献</strong>；应用自带的这些功能是随应用打包的<strong>内置扩展</strong>，与第三方插件走同一套贡献点。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>名词</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>扩展</td>
+<td>一组贡献加上元数据（id、版本、兼容范围）。内置扩展的清单是 <code>extension.json</code>，第三方插件的清单是 <code>plugin.json</code>。</td>
+</tr>
+<tr>
+<td>贡献点</td>
+<td>一种可扩展的能力，对应清单 <code>contributes</code> 下的一个键，如 <code>languages</code>、<code>grammars</code>、<code>themes</code>。</td>
+</tr>
+<tr>
+<td>声明式贡献</td>
+<td>纯数据，由应用内的引擎执行（语法由声明式语法引擎着色），不运行插件代码，不影响输入和滚动性能。</td>
+</tr>
+<tr>
+<td>脚本贡献</td>
+<td>由插件的 <code>main.js</code> 实现，在独立进程中运行。</td>
+</tr>
+</tbody>
+</table></div>
+<p>一个插件可以只有声明式贡献（不需要 <code>main.js</code>，不启动进程），也可以两者兼有。</p>
+<h2 id="2-五分钟上手一个纯声明式插件">2. 五分钟上手：一个纯声明式插件</h2>
+<p>下面的示例 为应用新增 Zig 语言：识别 <code>.zig</code> 文件、语法高亮、折叠和注释结构。整个插件只有一个 <code>plugin.json</code>：</p>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://lingyun000.github.io/yan-app-support/docs/schemas/plugin.schema.json&quot;,
+  &quot;id&quot;: &quot;com.example.zig-language&quot;,
+  &quot;name&quot;: &quot;Zig 语言支持&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;contributes&quot;: {
+    &quot;languages&quot;: [ { &quot;id&quot;: &quot;Zig&quot;, &quot;name&quot;: &quot;Zig&quot;, &quot;group&quot;: &quot;系统语言&quot;, &quot;keywords&quot;: [&quot;fn&quot;, &quot;const&quot;, &quot;pub&quot;],
+                     &quot;detection&quot;: { &quot;extensions&quot;: [&quot;zig&quot;, &quot;zon&quot;] },
+                     &quot;syntax&quot;: { &quot;strings&quot;: { &quot;double&quot;: { &quot;escapes&quot;: true } }, &quot;lineComments&quot;: [&quot;//&quot;] } } ],
+    &quot;grammars&quot;: [ { &quot;language&quot;: &quot;Zig&quot;,
+                    &quot;multiline&quot;: { &quot;scanner&quot;: &quot;code&quot;, &quot;strings&quot;: { &quot;double&quot;: { &quot;escapes&quot;: true } }, &quot;lineComments&quot;: [&quot;//&quot;] },
+                    &quot;protected&quot;: [ { &quot;pattern&quot;: &quot;\&quot;(?:\\\\.|[^\&quot;\\\\\\n])*\&quot;&quot;, &quot;scope&quot;: &quot;string&quot; },
+                                   { &quot;pattern&quot;: &quot;(?m://.*$)&quot;, &quot;scope&quot;: &quot;comment&quot; } ],
+                    &quot;rules&quot;: [ { &quot;keywords&quot;: true, &quot;scope&quot;: &quot;key&quot;, &quot;skipProtected&quot;: true } ] } ]
+  }
+}
+</code></pre>
+<ol>
+<li>建一个文件夹，放入 <code>plugin.json</code>。</li>
+<li>设置 → 插件，点插件列表上方的 <strong>＋ → 链接开发文件夹…</strong>，选择这个文件夹。保存文件后自动重新载入，不需要重启。</li>
+<li>打开一个 <code>.zig</code> 文件：语言菜单里出现 Zig，代码按语法着色。</li>
+<li>条目有错时（正则写错、颜色格式不对），插件中心该插件的详情页以橙色列出被拒绝的条目和原因；其余条目照常生效。</li>
+</ol>
+<p><strong><code>$schema</code></strong>：写上它，VS Code 等支持 JSON Schema 的编辑器就能补全字段、提示取值并标出错误。可以直接使用上面的地址（应用不读取 <code>$schema</code>）。</p>
+<h2 id="3-清单">3. 清单</h2>
+<p>第三方扩展一律使用 <code>plugin.json</code>，完整字段见 <a href="plugin-guide.html#4-pluginjson-完整参考">插件开发手册第 4 节</a>。与本手册相关的要点：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>反向域名，2–128 个字符，发布后不要改。插件的工具、快捷键等标识会以它为前缀。</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>数字版本号，如 <code>1.0.0</code>。</td>
+</tr>
+<tr>
+<td><code>apiVersion</code></td>
+<td>编写时使用的 API 版本（<code>toolbox.version</code>），可省略。比应用支持的新时拒绝安装。</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td>脚本入口。<strong>只有声明式贡献时省略</strong>。提供了 <code>textActions</code>、<code>commands</code>、<code>previewers</code>、<code>events</code>、<code>formatters</code>、<code>validators</code>、<code>hoverProviders</code>、<code>completionProviders</code> 时必须有。</td>
+</tr>
+<tr>
+<td><code>contributes</code></td>
+<td>本手册的贡献点：<code>languages</code>、<code>languageGroups</code>、<code>grammars</code>、<code>themes</code>、<code>keybindings</code>、<code>textTools</code>、<code>toolCategories</code>；以及插件手册中的脚本贡献点。至少提供一种。</td>
+</tr>
+</tbody>
+</table></div>
+<p>清单字符串可以写成 <code>&quot;%key%&quot;</code>，从插件包的 <code>nls.json</code>、<code>nls.&lt;语言&gt;.json</code> 取本地化文本。</p>
+<h2 id="4-加载冲突与生效">4. 加载、冲突与生效</h2>
+<ul>
+<li><strong>即时生效</strong>：安装、启用、停用、卸载插件，或开发文件夹中的文件变化，贡献立即增减，界面随之刷新，不需要重启。停用一个内置扩展（插件中心的“内置”分组，标记“核心”的除外）同理。</li>
+<li><strong>逐条校验</strong>：每个条目单独解码和校验；有错的条目被拒绝并记录原因，同一扩展的其他条目照常生效。</li>
+<li><strong>合并方式</strong>：每个贡献点有固定的合并方式：
+<ul>
+<li>唯一（<code>languages</code>、<code>languageGroups</code>、<code>grammars</code>、<code>themes</code>、<code>textTools</code>、<code>toolCategories</code>、工作区工具）：同一标识只有一个生效。依次比较：用户的选择 → 内置优先 → 先加载者。所以<strong>插件不能用同一 id 替换内置的语言、语法或主题</strong>；请使用新的 id，或用“扩展条目”给已有项追加内容。</li>
+<li>扩展条目：<code>languages</code> 和 <code>toolCategories</code> 中<strong>只有 <code>id</code>、没有 <code>name</code></strong> 的条目不定义新项，而是给已有项追加内容（扩展名、文件名、关键字、识别规则；分类的动作、分组、语言）。</li>
+<li>并存（<code>keybindings</code> 等）：都保留，由各自的规则裁决（见第 8 节）。</li>
+</ul>
+</li>
+<li><strong>命名空间</strong>：插件的文本工具、工作区工具、快捷键命令自动以插件 id 为前缀（<code>com.example.x/tool</code>），清单里写短 id 即可；引用本插件的工具时也写短 id。</li>
+</ul>
+<h2 id="5-语言-languageslanguagegroups">5. 语言 <code>languages</code>、<code>languageGroups</code></h2>
+<p>语言 id（如 <code>&quot;Zig&quot;</code>）会存入会话和设置，<strong>发布后不要改</strong>。<code>aliases</code> 用于在清单和插件 API 中指代该语言（不区分大小写）。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code> ✅</td>
+<td>语言 id。与已有语言相同且不写 <code>name</code> 时，本条目是扩展条目。</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>显示名称。</td>
+</tr>
+<tr>
+<td><code>aliases</code></td>
+<td>别名。</td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td>语言菜单分组的 id（见 <code>languageGroups</code>；内置分组有 <code>数据与文档</code>、<code>Web</code>、<code>应用开发</code>、<code>系统语言</code>、<code>脚本语言</code>、<code>配置与 DevOps</code>、<code>其他</code>）。</td>
+</tr>
+<tr>
+<td><code>icon</code>、<code>order</code></td>
+<td>SF Symbols 图标；菜单顺序。</td>
+</tr>
+<tr>
+<td><code>formattingStyle</code></td>
+<td>没有格式化器时的通用格式化方式：<code>braces</code>、<code>indentation</code>、<code>markup</code>、<code>whitespace</code>、<code>structuredTool</code>。</td>
+</tr>
+<tr>
+<td><code>preferredExtension</code></td>
+<td>另存为时的扩展名，缺省为 <code>detection.extensions</code> 的第一个。</td>
+</tr>
+<tr>
+<td><code>keywords</code></td>
+<td>关键字。语法规则 <code>{ &quot;keywords&quot;: true }</code> 用它生成匹配。</td>
+</tr>
+<tr>
+<td><code>markup</code>、<code>slashComments</code>、<code>backtickStrings</code></td>
+<td>标记语言；<code>//</code> 与 <code>/* */</code> 注释；反引号字符串。</td>
+</tr>
+<tr>
+<td><code>folding</code></td>
+<td>折叠策略，按顺序组合：<code>brackets</code>、<code>markup</code>、<code>embeddedMarkup</code>、<code>headings</code>、<code>indentation</code>、<code>sections</code>。缺省 <code>[&quot;brackets&quot;]</code>。</td>
+</tr>
+<tr>
+<td><code>syntax</code></td>
+<td>词法结构，供折叠、括号匹配、注释切换、重排使用（<strong>不决定颜色</strong>，颜色由 <code>grammars</code> 决定）：<code>strings</code>（<code>double</code>/<code>single</code>/<code>backtick</code>，值为 <code>true</code>、<code>false</code> 或 <code>{ &quot;escapes&quot;: true, &quot;doubled&quot;: false }</code>）、<code>lineComments</code>、<code>blockComments</code>（<code>[[&quot;/*&quot;, &quot;*/&quot;]]</code>）、<code>foldBrackets</code>。</td>
+</tr>
+<tr>
+<td><code>detection</code></td>
+<td>如何识别这种文件，见下。</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>识别</strong>（<code>detection</code>）：打开文件时先看文件名，再看内容，得分最高的语言胜出。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extensions</code></td>
+<td>扩展名（不含点）。插件声明的扩展名优先于内置语言。</td>
+</tr>
+<tr>
+<td><code>weakExtensions</code></td>
+<td>弱扩展名：只在内容不指向其他语言时采用（如 <code>.txt</code>）。</td>
+</tr>
+<tr>
+<td><code>fileNames</code></td>
+<td>完整文件名与得分，如 <code>{ &quot;name&quot;: &quot;Dockerfile&quot;, &quot;score&quot;: 20 }</code>。</td>
+</tr>
+<tr>
+<td><code>fileNamePrefixes</code></td>
+<td>文件名前缀。</td>
+</tr>
+<tr>
+<td><code>shebang</code></td>
+<td>首行 <code>#!</code> 的正则。</td>
+</tr>
+<tr>
+<td><code>contentRules</code></td>
+<td><code>{ &quot;score&quot;: 20, &quot;patterns&quot;: [...], &quot;requiresLiteral&quot;: &quot;@import&quot; }</code>：<code>patterns</code> 全部匹配才得分；<code>requiresLiteral</code> 是先做的廉价检查，不出现时跳过正则。识别在打开文件的路径上运行，正则要简单。</td>
+</tr>
+<tr>
+<td><code>combinations</code></td>
+<td>多种语言同时得分时的加分：<code>{ &quot;requires&quot;: { &quot;HTML&quot;: 10 }, &quot;score&quot;: 5 }</code>。</td>
+</tr>
+<tr>
+<td><code>authoritativeFileName</code></td>
+<td>文件名匹配即决定语言（缺省 <code>true</code>）。</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>扩展已有语言</strong>：只写 <code>id</code> 和要追加的内容，例如让 <code>.jsonl</code> 按 JSON 打开：</p>
+<pre><code class="language-json">&quot;languages&quot;: [ { &quot;id&quot;: &quot;JSON&quot;, &quot;detection&quot;: { &quot;extensions&quot;: [&quot;jsonl&quot;] } } ]
+</code></pre>
+<p>（插件手册中的 <code>languageAssociations</code> 是它的简写。）</p>
+<p><strong>分组</strong> <code>languageGroups</code>：<code>{ &quot;id&quot;: &quot;我的语言&quot;, &quot;name&quot;: &quot;我的语言&quot;, &quot;order&quot;: 90 }</code>。</p>
+<h2 id="6-语法高亮-grammars">6. 语法高亮 <code>grammars</code></h2>
+<p>一个语法为一种语言着色。着色在应用主进程由声明式引擎执行，大文件和虚拟编辑器中同样生效。</p>
+<pre><code class="language-json">{
+  &quot;language&quot;: &quot;Zig&quot;,
+  &quot;multiline&quot;: { &quot;scanner&quot;: &quot;code&quot;, &quot;strings&quot;: { &quot;double&quot;: { &quot;escapes&quot;: true } }, &quot;lineComments&quot;: [&quot;//&quot;] },
+  &quot;protected&quot;: [ { &quot;pattern&quot;: &quot;\&quot;(?:\\\\.|[^\&quot;\\\\\\n])*\&quot;&quot;, &quot;scope&quot;: &quot;string&quot; },
+                 { &quot;pattern&quot;: &quot;(?m://.*$)&quot;, &quot;scope&quot;: &quot;comment&quot; } ],
+  &quot;protectedOptions&quot;: [],
+  &quot;rules&quot;: [ { &quot;keywords&quot;: true, &quot;scope&quot;: &quot;key&quot;, &quot;skipProtected&quot;: true },
+             { &quot;pattern&quot;: &quot;@[A-Za-z_]\\w*&quot;, &quot;scope&quot;: &quot;tag&quot;, &quot;skipProtected&quot;: true },
+             { &quot;pattern&quot;: &quot;\\b(\\w+)\\s*\\(&quot;, &quot;group&quot;: 1, &quot;scope&quot;: &quot;attribute&quot;, &quot;skipProtected&quot;: true } ]
+}
+</code></pre>
+<p><strong>执行顺序</strong></p>
+<ol>
+<li><code>protected</code>（受保护区域，通常是字符串和注释）：所有条目合成一个按顺序的选择分支，从左到右找最早的匹配并着色。</li>
+<li><code>rules</code>：每条规则在整个范围内匹配并着色；<code>skipProtected: true</code> 的规则不在受保护区域里着色（关键字不会在字符串里变色）。后面的规则覆盖前面的。</li>
+</ol>
+<p><strong>规则字段</strong>：<code>pattern</code>（ICU 正则）或 <code>keywords: true</code>（用语言的 <code>keywords</code>）；<code>scope</code>（类别）；<code>group</code>（只给某个捕获组着色，缺省 0 即整个匹配）；<code>options</code>（<code>anchorsMatchLines</code>、<code>caseInsensitive</code>、<code>dotMatchesLineSeparators</code>）。</p>
+<p><strong>类别</strong>（<code>scope</code>）决定颜色，由主题配色：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code></td>
+<td>关键字、键名</td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td>字符串</td>
+</tr>
+<tr>
+<td><code>number</code></td>
+<td>数字</td>
+</tr>
+<tr>
+<td><code>literal</code></td>
+<td><code>true</code>、<code>false</code>、<code>null</code> 等</td>
+</tr>
+<tr>
+<td><code>punctuation</code></td>
+<td>运算符、括号</td>
+</tr>
+<tr>
+<td><code>comment</code></td>
+<td>注释</td>
+</tr>
+<tr>
+<td><code>attribute</code></td>
+<td>类型、属性、装饰器</td>
+</tr>
+<tr>
+<td><code>tag</code></td>
+<td>标签、函数名、内建调用</td>
+</tr>
+<tr>
+<td><code>xmlDeclaration</code>、<code>xmlTag</code>、<code>xmlAttribute</code>、<code>xmlValue</code>、<code>xmlNumber</code>、<code>xmlBoolean</code>、<code>xmlCDATA</code>、<code>xmlComment</code>、<code>xmlEntity</code>、<code>xmlNamespace</code>、<code>xmlError</code>、<code>xmlSymbol</code></td>
+<td>XML 系语言（使用原生 XML 词法器时）</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong><code>multiline</code>：跨行构造</strong></p>
+<p>编辑时只重新着色改动附近的行，需要知道从哪一行起状态是干净的。<code>multiline</code> 告诉增量扫描器<strong>本语法</strong>中哪些构造会跨行：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scanner</code></td>
+<td><code>code</code>（按下面的字符串和注释设置）、<code>xml</code>、<code>markdown</code>、<code>make</code>、<code>none</code>（没有跨行构造）。</td>
+</tr>
+<tr>
+<td><code>strings</code></td>
+<td><code>double</code>、<code>single</code>、<code>backtick</code>：<code>{ &quot;escapes&quot;: true, &quot;doubled&quot;: false }</code>。</td>
+</tr>
+<tr>
+<td><code>tripleQuotes</code></td>
+<td><code>&quot;&quot;&quot;</code> 与 <code>'''</code> 字符串。</td>
+</tr>
+<tr>
+<td><code>blockComments</code></td>
+<td><code>&quot;/*&quot;</code>、<code>&quot;--[[&quot;</code>。</td>
+</tr>
+<tr>
+<td><code>lineComments</code></td>
+<td>行注释标记。</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>只声明语法确实着色的构造</strong>：如果声明了块注释而 <code>protected</code> 中没有对应的模式，重启点会与着色结果不一致，表现为编辑后颜色错位。</p>
+<p><strong>写法与性能</strong></p>
+<ul>
+<li><code>protected</code> 的模式<strong>不要用捕获组包裹整体</strong>：ICU 在很长的匹配（几百 KB 的字符串）位于捕获组中时会放弃匹配。需要多行的块注释写成 <code>(?s:/\*.*?\*/)</code> 这样的非捕获组。</li>
+<li>不要写可能灾难性回溯的正则（嵌套量词 <code>(a+)+</code>）。</li>
+<li>正则错误、未知类别、未知选项会让这条语法被拒绝，并在设置中显示原因；该语言此时按纯文本显示。</li>
+<li>内置的 45 种语言的语法都在内置扩展 <code>builtin.grammars</code> 中。</li>
+</ul>
+<h2 id="7-主题-themes">7. 主题 <code>themes</code></h2>
+<pre><code class="language-json">&quot;themes&quot;: [ {
+  &quot;id&quot;: &quot;我的主题&quot;, &quot;name&quot;: &quot;我的主题&quot;, &quot;subtitle&quot;: &quot;青灰与暖白&quot;, &quot;icon&quot;: &quot;paintpalette&quot;,
+  &quot;light&quot;: { &quot;accent&quot;: &quot;#236C70&quot;, &quot;toolbar&quot;: &quot;#E6ECEB&quot;, &quot;chrome&quot;: &quot;#EDF1F0&quot;, &quot;inspector&quot;: &quot;#F1F4F2&quot;, &quot;sidebar&quot;: &quot;#E8EEEB&quot;,
+             &quot;status&quot;: &quot;#E6ECEB&quot;, &quot;editor&quot;: &quot;#FAFBF8&quot;, &quot;control&quot;: &quot;#DCE5E1&quot;, &quot;border&quot;: &quot;#A8B9B2&quot;,
+             &quot;selection&quot;: &quot;#80AAA3&quot;, &quot;caret&quot;: &quot;#236C70&quot;, &quot;editorText&quot;: &quot;#243832&quot;, &quot;caretWidth&quot;: 2 },
+  &quot;dark&quot;: { ... },
+  &quot;syntax&quot;: { &quot;light&quot;: { &quot;key&quot;: &quot;#8A3B6E&quot;, &quot;string&quot;: &quot;#2F6B3A&quot;, &quot;comment&quot;: &quot;#7A8A86&quot; }, &quot;dark&quot;: { ... } }
+} ]
+</code></pre>
+<p>主题 id 会存入设置，发布后不要改。主题被移除后，正在使用它的用户回退为“系统原生”。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>配色键</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>accent</code> ✅</td>
+<td>强调色（按钮、选中项）</td>
+</tr>
+<tr>
+<td><code>toolbar</code>、<code>chrome</code>、<code>inspector</code>、<code>sidebar</code>、<code>status</code> ✅</td>
+<td>工具栏、窗口框架、检查器、侧栏、状态栏背景</td>
+</tr>
+<tr>
+<td><code>editor</code> ✅</td>
+<td>编辑区背景</td>
+</tr>
+<tr>
+<td><code>control</code> ✅</td>
+<td>控件背景</td>
+</tr>
+<tr>
+<td><code>border</code> ✅</td>
+<td>分隔线</td>
+</tr>
+<tr>
+<td><code>matchingRange</code></td>
+<td>匹配括号、查找结果</td>
+</tr>
+<tr>
+<td><code>selection</code>、<code>caret</code>、<code>caretWidth</code></td>
+<td>选区、插入点颜色与宽度（缺省 1.5）</td>
+</tr>
+<tr>
+<td><code>editorText</code></td>
+<td>正文颜色</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>light</code> 与 <code>dark</code> 都必须给出；颜色写 <code>#RRGGBB</code>。<code>syntax</code> 按外观给出类别颜色（类别见第 6 节），未给出的类别使用应用默认色；外观切换时自动换色。内置的 15 个主题（<code>builtin.themes</code>）可作参考。</p>
+<h2 id="8-快捷键-keybindings">8. 快捷键 <code>keybindings</code></h2>
+<pre><code class="language-json">&quot;keybindings&quot;: [ { &quot;command&quot;: &quot;format&quot;, &quot;key&quot;: &quot;cmd+shift+l&quot;, &quot;title&quot;: &quot;格式化&quot; } ]
+</code></pre>
+<ul>
+<li>插件只能为<strong>自己的命令</strong>绑定快捷键（<code>command</code> 写短 id），等同于命令上的 <code>keybinding</code> 字段。快捷键必须包含 <code>cmd</code> 或 <code>ctrl</code>。</li>
+<li>裁决：用户在 设置 → 快捷键 中的选择 → 内置绑定 → 插件按顺序。已被占用或属于系统的快捷键不会分配给插件，设置中显示原因。</li>
+<li>用户可以在同一页修改、清空、恢复任何快捷键，修改后菜单立即更新。</li>
+</ul>
+<h2 id="9-文本工具-texttoolstoolcategories">9. 文本工具 <code>textTools</code>、<code>toolCategories</code></h2>
+<p>文本工具是检查器、菜单、命令面板和处理步骤里的一个动作。插件的文本工具由它的<strong>文本动作</strong>实现：</p>
+<pre><code class="language-json">&quot;textActions&quot;: [ { &quot;id&quot;: &quot;sortKeys&quot;, &quot;title&quot;: &quot;按键排序&quot; } ],
+&quot;textTools&quot;: [ { &quot;id&quot;: &quot;sortKeys&quot;, &quot;title&quot;: &quot;按键排序&quot;, &quot;icon&quot;: &quot;arrow.up.arrow.down&quot;, &quot;tint&quot;: &quot;purple&quot;,
+                 &quot;aliases&quot;: &quot;sort keys 排序&quot;, &quot;handler&quot;: { &quot;plugin&quot;: &quot;sortKeys&quot; } } ],
+&quot;toolCategories&quot;: [ { &quot;id&quot;: &quot;JSON&quot;, &quot;actions&quot;: [&quot;sortKeys&quot;] } ]
+</code></pre>
+<ul>
+<li>只声明 <code>textActions</code> 时，应用自动为每个动作生成文本工具，并放在以插件命名的分类中。要自己决定图标、颜色或位置时才写 <code>textTools</code>。</li>
+<li><code>toolCategories</code> 的扩展条目（只有 <code>id</code>）把工具放进已有分类，例如上面把“按键排序”加入 JSON 分类；也可以新建分类（写 <code>name</code>、<code>icon</code>、<code>languages</code> 等）。</li>
+<li>文本工具字段：<code>title</code>、<code>icon</code>、<code>tint</code>（<code>blue</code>、<code>orange</code>、<code>red</code>、<code>green</code>、<code>purple</code>、<code>teal</code>）、<code>aliases</code>（搜索词）、<code>report</code>（结果在分屏显示，不替换原文）、<code>conversionTitle</code>（检查器“转换”中的短标题）、<code>selectionTransform</code>（作为选区变换时的顺序）。</li>
+<li>分类字段：<code>name</code>、<code>icon</code>、<code>subtitle</code>、<code>order</code>、<code>languages</code>（以该分类打开的语言）、<code>editorLanguage</code>（选中分类时把文档切换为的语言）、<code>actions</code>、<code>groups</code>（<code>{ title, icon, actions }</code>）、<code>primaryActions</code>、<code>general</code>、<code>fallback</code>。</li>
+</ul>
+<p>处理步骤和历史记录按工具 id 保存；插件工具的 id 是 <code>&lt;插件 id&gt;/&lt;工具 id&gt;</code>，改名会让已保存的步骤找不到它。</p>
+<h2 id="10-工作区工具">10. 工作区工具</h2>
+<p>插件的每个<strong>面板</strong>（<code>contributes.panels</code>）自动成为工作区侧栏“插件”分类下的一页，也可以在独立窗口中打开，不需要另外声明。面板写法见插件手册第 8 节。</p>
+<p>需要自定义标题、分类或搜索词时声明 <code>workspaceTools</code>，见 <a href="plugin-guide.html#18-界面集成菜单工作区工具粘贴识别设置页自定义编辑器">插件开发手册第 18 节</a>。</p>
+<h2 id="11-格式化预览与校验">11. 格式化、预览与校验</h2>
+<p>插件的 <code>formatters</code>、<code>previewers</code>、<code>validators</code> 与应用内置的功能按同一规则选用：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>服务</th>
+<th>自动顺序</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>格式化</td>
+<td>按扩展名匹配的插件 → 内置 → 按语言匹配的插件 → 通用格式化</td>
+</tr>
+<tr>
+<td>预览</td>
+<td>内置（Markdown、HTML）→ 按扩展名匹配的插件 → 按语言匹配的插件</td>
+</tr>
+<tr>
+<td>校验</td>
+<td>全部运行</td>
+</tr>
+</tbody>
+</table></div>
+<p>用户可在 设置 → 插件 → 格式化与预览 中为某个语言或扩展名改选提供者，详见 <a href="plugin-guide.html#15-格式化预览与校验的选择">插件开发手册第 15 节</a>。为新语言提供格式化器时，按语言匹配即可，不会与内置冲突。</p>
+<h2 id="12-诊断与排错">12. 诊断与排错</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>去哪看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>插件无法安装</td>
+<td>导入时的错误提示（清单格式、缺少 <code>main</code>、<code>apiVersion</code> 过高等）。</td>
+</tr>
+<tr>
+<td>某个条目没有生效</td>
+<td>插件中心，该插件详情页的橙色条目：<code>&lt;插件 id&gt; · &lt;贡献点&gt; · &lt;原因&gt;</code>。</td>
+</tr>
+<tr>
+<td>编辑清单时就想发现错误</td>
+<td>在 <code>plugin.json</code> 中写 <code>$schema</code>，用支持 JSON Schema 的编辑器打开。</td>
+</tr>
+<tr>
+<td>脚本错误</td>
+<td>插件中心的“控制台”标签（插件手册第 23 节）。</td>
+</tr>
+</tbody>
+</table></div>
+<p>常见错误：</p>
+<ul>
+<li><code>grammars</code>：<code>invalid pattern</code>（正则无法编译，注意 JSON 中反斜杠要写两次）、<code>scope xxx</code>（类别不存在）、<code>unknown regex option</code>。</li>
+<li><code>themes</code>：<code>&lt;键&gt; (#RRGGBB)</code>（颜色格式或缺少必需的键）。</li>
+<li><code>textTools</code>：<code>handler must name a plugin action</code>（插件的工具必须由文本动作实现）。</li>
+<li><code>languages</code>：<code>invalid pattern</code>（识别规则的正则）、<code>formattingStyle</code>（取值不对）。</li>
+</ul>
+<h2 id="13-发布须知">13. 发布须知</h2>
+<ul>
+<li>存入用户数据的标识（语言 id、主题 id、工具 id、命令 id）是插件的公开接口，发布后不要改。</li>
+<li>应用不认识的 <code>contributes</code> 键会被忽略，并在插件详情页以橙色提示。发布前请用 <code>$schema</code> 检查拼写。</li>
+</ul>
+<h2 id="14-内置扩展一览">14. 内置扩展一览</h2>
+<p>应用自带的功能也是扩展，可在插件中心的“内置”分组中查看。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>扩展</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>builtin.languages</code></td>
+<td>45 种语言与菜单分组，含识别规则</td>
+</tr>
+<tr>
+<td><code>builtin.grammars</code></td>
+<td>45 种语言的语法（XML 系使用原生词法器 <code>tokenizer: &quot;xml&quot;</code>）</td>
+</tr>
+<tr>
+<td><code>builtin.text-tools</code></td>
+<td>文本工具与分类（格式化、转换、编码、校验……）</td>
+</tr>
+<tr>
+<td><code>builtin.workspace-tools</code></td>
+<td>27 个工作区工具及侧栏分类</td>
+</tr>
+<tr>
+<td><code>builtin.themes</code></td>
+<td>15 个预设主题</td>
+</tr>
+<tr>
+<td><code>builtin.keybindings</code></td>
+<td>菜单默认快捷键（命令 id 如 <code>edit.undo</code>）</td>
+</tr>
+<tr>
+<td><code>builtin.language-services</code></td>
+<td>内置格式化器（含 Prettier 的解析器表）、Markdown/HTML 预览、JSON/XML/YAML/SQL 校验器</td>
+</tr>
+</tbody>
+</table></div>
+    </article>
+  </main>
+  <footer>
+    <a href="../plugins.html">返回插件开发</a>
+    <a href="extension-guide.md">Markdown 源文档</a>
+  </footer>
+</body>
+</html>

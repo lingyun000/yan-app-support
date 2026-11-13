@@ -1,0 +1,1184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lingyun000.github.io/yan-app-support/docs/schemas/contributions.schema.json",
+  "title": "ToolBox 贡献点条目",
+  "description": "plugin.json 与 extension.json 共用的数据贡献条目。",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "description": "扩展 id：反向域名，字母、数字、点和连字符",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-]*$",
+      "minLength": 2,
+      "maxLength": 128
+    },
+    "version": {
+      "type": "string",
+      "description": "版本号，如 1.0.0",
+      "pattern": "^[0-9]+(\\.[0-9]+){0,2}$"
+    },
+    "color": {
+      "type": "string",
+      "description": "#RRGGBB",
+      "pattern": "^#?[0-9A-Fa-f]{6}$"
+    },
+    "scope": {
+      "type": "string",
+      "description": "语法着色类别",
+      "enum": [
+        "key",
+        "string",
+        "number",
+        "literal",
+        "punctuation",
+        "comment",
+        "attribute",
+        "tag",
+        "xmlDeclaration",
+        "xmlTag",
+        "xmlAttribute",
+        "xmlValue",
+        "xmlNumber",
+        "xmlBoolean",
+        "xmlCDATA",
+        "xmlComment",
+        "xmlEntity",
+        "xmlNamespace",
+        "xmlError",
+        "xmlSymbol"
+      ]
+    },
+    "regexOptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "anchorsMatchLines",
+          "caseInsensitive",
+          "dotMatchesLineSeparators"
+        ]
+      },
+      "description": "正则选项"
+    },
+    "language": {
+      "type": "object",
+      "description": "一种语言（contributes.languages[]）",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "语言 id（存入会话和设置，发布后不要改）。与已有语言同 id 且不写 name 时，本条目扩展该语言（追加扩展名、文件名、关键字、识别规则）"
+        },
+        "name": {
+          "type": "string",
+          "description": "显示名称；省略表示扩展已有语言"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "别名（插件和清单中可用来指代该语言，不区分大小写）"
+        },
+        "group": {
+          "type": "string",
+          "description": "语言菜单中的分组 id（languageGroups）"
+        },
+        "icon": {
+          "type": "string",
+          "description": "SF Symbols 名称"
+        },
+        "order": {
+          "type": "number",
+          "description": "菜单中的顺序"
+        },
+        "formattingStyle": {
+          "type": "string",
+          "description": "没有格式化扩展处理时的通用格式化方式",
+          "enum": [
+            "structuredTool",
+            "markup",
+            "braces",
+            "indentation",
+            "whitespace"
+          ]
+        },
+        "preferredExtension": {
+          "type": "string",
+          "description": "另存为时的扩展名；缺省为 detection.extensions 的第一个"
+        },
+        "markup": {
+          "type": "boolean",
+          "description": "标记语言（影响折叠与缩进）"
+        },
+        "slashComments": {
+          "type": "boolean",
+          "description": "使用 // 与 /* */ 注释"
+        },
+        "features": {
+          "type": "array",
+          "description": "向编辑器引擎声明的行为",
+          "items": { "type": "string", "enum": ["cPreprocessor", "cssFormatting", "cssLineComments", "jsonStructure", "preserveLeadingTabs", "semanticIdentifiers", "strictTags", "tripleQuotedStrings", "xmlThemes"] }
+        },
+        "backtickStrings": {
+          "type": "boolean",
+          "description": "反引号字符串"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "关键字；语法规则 { \"keywords\": true } 使用它们"
+        },
+        "folding": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "brackets",
+              "markup",
+              "embeddedMarkup",
+              "headings",
+              "indentation",
+              "sections"
+            ]
+          },
+          "description": "折叠策略，按顺序组合（缺省 [\"brackets\"]）"
+        },
+        "syntax": {
+          "type": "object",
+          "description": "词法结构：折叠、括号匹配、重排使用；颜色由 grammars 决定",
+          "properties": {
+            "strings": {
+              "type": "object",
+              "description": "字符串引号：true 或 { escapes, doubled }；false 表示没有",
+              "properties": {
+                "double": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "escapes": {
+                          "type": "boolean",
+                          "description": "反斜杠转义下一个字符（缺省 true）"
+                        },
+                        "doubled": {
+                          "type": "boolean",
+                          "description": "引号连写两次表示字面引号，如 'it''s'（缺省 false）"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "single": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "escapes": {
+                          "type": "boolean",
+                          "description": "反斜杠转义下一个字符（缺省 true）"
+                        },
+                        "doubled": {
+                          "type": "boolean",
+                          "description": "引号连写两次表示字面引号，如 'it''s'（缺省 false）"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "backtick": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "escapes": {
+                          "type": "boolean",
+                          "description": "反斜杠转义下一个字符（缺省 true）"
+                        },
+                        "doubled": {
+                          "type": "boolean",
+                          "description": "引号连写两次表示字面引号，如 'it''s'（缺省 false）"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "lineComments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "行注释标记，如 //、#"
+            },
+            "blockComments": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "description": "块注释 [开始, 结束]，如 [\"/*\", \"*/\"]"
+            },
+            "foldBrackets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "可折叠的开括号，如 {、[、("
+            }
+          },
+          "additionalProperties": false
+        },
+        "detection": {
+          "type": "object",
+          "description": "如何识别这种语言的文件",
+          "properties": {
+            "extensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "扩展名（不含点）"
+            },
+            "weakExtensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "弱扩展名：只在内容规则不反对时采用（如 .txt）"
+            },
+            "fileNames": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "score": {
+                    "type": "integer",
+                    "description": "得分，缺省 13"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              "description": "完整文件名，如 Dockerfile"
+            },
+            "fileNamePrefixes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "文件名前缀"
+            },
+            "shebang": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "首行 #! 的正则"
+            },
+            "contentRules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer"
+                  },
+                  "patterns": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "全部匹配才得分的正则",
+                    "minItems": 1
+                  },
+                  "requiresLiteral": {
+                    "type": "string",
+                    "description": "先检查的字面量，不出现时跳过正则"
+                  }
+                },
+                "required": [
+                  "score",
+                  "patterns"
+                ],
+                "additionalProperties": false
+              },
+              "description": "按内容识别"
+            },
+            "nativeContentCheck": {
+              "type": "string",
+              "description": "应用内置的内容检查（仅内置扩展），如 json",
+              "enum": [
+                "json"
+              ]
+            },
+            "combinations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "requires": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "description": "语言 id → 最低得分"
+                  },
+                  "score": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "requires",
+                  "score"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "authoritativeFileName": {
+              "type": "boolean",
+              "description": "文件名匹配即决定语言（缺省 true）"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "languageGroup": {
+      "type": "object",
+      "description": "语言菜单分组",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "grammar": {
+      "type": "object",
+      "description": "一种语言的语法高亮（contributes.grammars[]）",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "着色的语言 id"
+        },
+        "tokenizer": {
+          "type": "string",
+          "description": "原生词法器（仅内置扩展）",
+          "enum": [
+            "xml"
+          ]
+        },
+        "multiline": {
+          "type": "object",
+          "description": "语法中可以跨行的构造：只声明本语法确实着色的构造，否则增量着色的重启点会与结果不一致",
+          "properties": {
+            "scanner": {
+              "type": "string",
+              "description": "增量着色的跨行扫描方式",
+              "enum": [
+                "code",
+                "xml",
+                "markdown",
+                "make",
+                "none"
+              ]
+            },
+            "strings": {
+              "type": "object",
+              "description": "字符串引号：true 或 { escapes, doubled }；false 表示没有",
+              "properties": {
+                "double": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "escapes": {
+                          "type": "boolean",
+                          "description": "反斜杠转义下一个字符（缺省 true）"
+                        },
+                        "doubled": {
+                          "type": "boolean",
+                          "description": "引号连写两次表示字面引号，如 'it''s'（缺省 false）"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "single": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "escapes": {
+                          "type": "boolean",
+                          "description": "反斜杠转义下一个字符（缺省 true）"
+                        },
+                        "doubled": {
+                          "type": "boolean",
+                          "description": "引号连写两次表示字面引号，如 'it''s'（缺省 false）"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "backtick": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "escapes": {
+                          "type": "boolean",
+                          "description": "反斜杠转义下一个字符（缺省 true）"
+                        },
+                        "doubled": {
+                          "type": "boolean",
+                          "description": "引号连写两次表示字面引号，如 'it''s'（缺省 false）"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            "tripleQuotes": {
+              "type": "boolean",
+              "description": "\"\"\" 与 ''' 字符串"
+            },
+            "blockComments": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "/*",
+                  "--[["
+                ]
+              },
+              "description": "跨行块注释"
+            },
+            "lineComments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "行注释标记"
+            },
+            "separatorsAreNotLineEnds": {
+              "type": "boolean",
+              "description": "Unicode 行分隔符不结束构造"
+            }
+          },
+          "additionalProperties": false
+        },
+        "protected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "正则（不要用捕获组包裹整体）"
+              },
+              "scope": {
+                "$ref": "#/$defs/scope"
+              }
+            },
+            "required": [
+              "pattern",
+              "scope"
+            ],
+            "additionalProperties": false
+          },
+          "description": "受保护区域（字符串、注释）：先于规则匹配，rules 中 skipProtected 的规则不会在其中着色"
+        },
+        "protectedOptions": {
+          "$ref": "#/$defs/regexOptions"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "正则；与 keywords 二选一"
+              },
+              "keywords": {
+                "const": true,
+                "description": "用语言的 keywords 生成 \\b(?:…)\\b"
+              },
+              "scope": {
+                "$ref": "#/$defs/scope"
+              },
+              "group": {
+                "type": "integer",
+                "description": "着色的捕获组（缺省 0 即整个匹配）",
+                "minimum": 0
+              },
+              "options": {
+                "$ref": "#/$defs/regexOptions"
+              },
+              "skipProtected": {
+                "type": "boolean",
+                "description": "不在受保护区域内着色"
+              }
+            },
+            "required": [
+              "scope"
+            ],
+            "additionalProperties": false
+          },
+          "description": "着色规则，按顺序应用"
+        }
+      },
+      "required": [
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "textTool": {
+      "type": "object",
+      "description": "一个文本工具（contributes.textTools[]）",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string",
+          "description": "SF Symbols 名称"
+        },
+        "tint": {
+          "type": "string",
+          "description": "检查器中按钮的颜色",
+          "enum": [
+            "blue",
+            "orange",
+            "red",
+            "green",
+            "purple",
+            "teal"
+          ]
+        },
+        "aliases": {
+          "type": "string",
+          "description": "搜索用的别名，空格分隔"
+        },
+        "report": {
+          "type": "boolean",
+          "description": "结果是报告（在分屏中显示），不替换文本"
+        },
+        "input": {
+          "type": "string",
+          "description": "运行前要求的输入",
+          "enum": [
+            "none",
+            "jsonPath",
+            "stringParameters"
+          ]
+        },
+        "command": { "type": "string", "description": "运行这个命令，而不是处理文本（用于打开自己界面的工具）；插件写 <插件 id>/<命令 id>" },
+        "conversionTitle": {
+          "type": "string",
+          "description": "在检查器“转换”中显示的短标题"
+        },
+        "selectionTransform": {
+          "type": "integer",
+          "description": "作为选区变换时的顺序"
+        },
+        "handler": {
+          "type": "object",
+          "description": "实现：插件中必须为 { plugin }；内置扩展省略表示原生实现",
+          "properties": {
+            "plugin": {
+              "type": "string",
+              "description": "本插件的文本动作 id"
+            }
+          },
+          "required": [
+            "plugin"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "toolCategory": {
+      "type": "object",
+      "description": "文本工具分类（contributes.toolCategories[]）",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "省略表示扩展已有分类（追加 actions、groups、languages）"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "editorLanguage": {
+          "type": "string",
+          "description": "选中该分类时把文档切换为的语言"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "以该分类打开的语言"
+        },
+        "fallback": {
+          "type": "boolean",
+          "description": "没有分类匹配语言时使用"
+        },
+        "general": {
+          "type": "boolean",
+          "description": "其动作出现在所有分类下"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "文本工具 id（本扩展的工具写短 id）"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "title"
+            ],
+            "additionalProperties": false
+          },
+          "description": "检查器中的分组"
+        },
+        "primaryActions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "突出显示的动作"
+        },
+        "sectionTitle": { "type": "string", "description": "检查器中处理动作的标题，默认“数据处理”" },
+        "backgroundActions": { "type": "array", "items": { "type": "string" }, "description": "无论文本大小都在后台运行的动作" },
+        "menuHidden": { "type": "array", "items": { "type": "string" }, "description": "不显示在工具栏菜单中的动作" },
+        "menuSubmenus": {
+          "type": "array",
+          "description": "工具栏菜单中归入子菜单的动作",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "actions": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["title", "actions"],
+            "additionalProperties": false
+          }
+        },
+        "searchTerms": {
+          "type": "string",
+          "description": "搜索词"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "workspaceTool": {
+      "type": "object",
+      "description": "工作区工具（contributes.workspaceTools[]）",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "description": "workspaceToolCategories 的 id（缺省 plugins）"
+        },
+        "order": {
+          "type": "number"
+        },
+        "aliases": {
+          "type": "string",
+          "description": "搜索别名"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "aliasOf": {
+          "type": "string",
+          "description": "作为另一个工具的别名"
+        },
+        "acceptsInput": {
+          "type": "boolean",
+          "description": "可接收编辑器发送的文本"
+        },
+        "usesNetwork": {
+          "type": "boolean"
+        },
+        "sendTarget": {
+          "type": "integer"
+        },
+        "featured": {
+          "type": "integer"
+        },
+        "defaultFavorite": {
+          "type": "integer"
+        },
+        "panel": {
+          "type": "string",
+          "description": "插件面板 id（插件提供的工作区工具必须有）"
+        },
+        "window": {
+          "type": "object",
+          "description": "独立窗口的最小尺寸",
+          "properties": {
+            "minWidth": {
+              "type": "number"
+            },
+            "minHeight": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "workspaceToolCategory": {
+      "type": "object",
+      "description": "工作区侧栏分类",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "colorSet": {
+      "type": "object",
+      "description": "一种外观（浅色或深色）的界面配色",
+      "properties": {
+        "accent": {
+          "$ref": "#/$defs/color"
+        },
+        "toolbar": {
+          "$ref": "#/$defs/color"
+        },
+        "chrome": {
+          "$ref": "#/$defs/color"
+        },
+        "inspector": {
+          "$ref": "#/$defs/color"
+        },
+        "sidebar": {
+          "$ref": "#/$defs/color"
+        },
+        "status": {
+          "$ref": "#/$defs/color"
+        },
+        "editor": {
+          "$ref": "#/$defs/color"
+        },
+        "control": {
+          "$ref": "#/$defs/color"
+        },
+        "border": {
+          "$ref": "#/$defs/color"
+        },
+        "matchingRange": {
+          "$ref": "#/$defs/color"
+        },
+        "selection": {
+          "$ref": "#/$defs/color"
+        },
+        "caret": {
+          "$ref": "#/$defs/color"
+        },
+        "editorText": {
+          "$ref": "#/$defs/color"
+        },
+        "caretWidth": {
+          "type": "number",
+          "description": "插入点宽度（缺省 1.5）"
+        }
+      },
+      "required": [
+        "accent",
+        "toolbar",
+        "chrome",
+        "inspector",
+        "sidebar",
+        "status",
+        "editor",
+        "control",
+        "border"
+      ],
+      "additionalProperties": false
+    },
+    "syntaxColors": {
+      "type": "object",
+      "description": "语法类别 → 颜色",
+      "propertyNames": {
+        "$ref": "#/$defs/scope"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/color"
+      }
+    },
+    "theme": {
+      "type": "object",
+      "description": "主题（contributes.themes[]）",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "主题 id（存入设置）"
+        },
+        "name": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "kind": {
+          "type": "string",
+          "description": "palette：清单给出配色；system、custom 仅内置扩展",
+          "enum": [
+            "palette",
+            "system",
+            "custom"
+          ]
+        },
+        "light": {
+          "$ref": "#/$defs/colorSet"
+        },
+        "dark": {
+          "$ref": "#/$defs/colorSet"
+        },
+        "editable": {
+          "type": "object",
+          "description": "“基于此主题编辑”时的起始配色",
+          "properties": {
+            "light": {
+              "$ref": "#/$defs/colorSet"
+            },
+            "dark": {
+              "$ref": "#/$defs/colorSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "syntax": {
+          "type": "object",
+          "description": "语法着色；未列出的类别保持应用默认色",
+          "properties": {
+            "light": {
+              "$ref": "#/$defs/syntaxColors"
+            },
+            "dark": {
+              "$ref": "#/$defs/syntaxColors"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "aiProvider": {
+      "type": "object",
+      "description": "AI 模型提供商（contributes.aiProviders[]），仅内置扩展可用",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "transport": { "type": "string", "enum": ["onDevice", "openAICompatible"] },
+        "defaultBaseURL": { "type": "string" },
+        "defaultModel": { "type": "string" },
+        "suggestedModels": { "type": "array", "items": { "type": "string" } },
+        "retiredModels": { "type": "array", "items": { "type": "string" } },
+        "settingsKey": { "type": "string" },
+        "requestBody": { "type": "object" },
+        "maximumInputCharacters": { "type": "integer" }
+      },
+      "required": ["id", "title"],
+      "additionalProperties": false
+    },
+    "pasteDetector": {
+      "type": "object",
+      "description": "粘贴识别（contributes.pasteDetectors[]）；插件用 pattern，文本超过 64 KB 不匹配",
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "order": { "type": "number" },
+        "native": { "type": "string", "description": "仅内置扩展" },
+        "pattern": { "type": "string" },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tool": { "type": "string", "description": "打开的工作区工具 id" },
+              "transform": { "type": "string", "description": "文本工具分类 id，与 action 同用" },
+              "action": { "type": "string" },
+              "command": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["id", "label"],
+      "additionalProperties": false
+    },
+    "settingsPage": {
+      "type": "object",
+      "description": "设置页面（contributes.settingsPages[]）；插件页显示自己的一个面板",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "icon": { "type": "string" },
+        "detail": { "type": "string" },
+        "order": { "type": "number" },
+        "panel": { "type": "string" }
+      },
+      "required": ["id", "title"],
+      "additionalProperties": false
+    },
+    "appCommand": {
+      "type": "object",
+      "description": "命令（contributes.commands[]）：由命令总线按 id 执行",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "icon": { "type": "string", "description": "SF Symbol 名称" }
+      },
+      "required": ["id", "title"],
+      "additionalProperties": false
+    },
+    "appMenuItem": {
+      "type": "object",
+      "description": "菜单项（contributes.menus[]）：command、submenu、text、slot 恰好给一个；slot 仅内置扩展可用",
+      "properties": {
+        "menu": { "type": "string", "description": "menubar/file、menubar/split、menubar/find、menubar/go、menubar/selection、menubar/tools、toolbar、editor/context、tab/context、palette，或某个子菜单的 id" },
+        "command": { "type": "string" },
+        "slot": { "type": "string" },
+        "submenu": { "type": "string", "description": "子菜单的 id" },
+        "text": { "type": "string" },
+        "title": { "type": "string" },
+        "group": { "type": "integer", "description": "分组，组间显示分隔线" },
+        "order": { "type": "number" },
+        "enablement": { "type": "string", "minLength": 1, "description": "启用条件，写法同 when.context：contentReady、hasDiagnostics、hasSelection、language、fileExtension，以及插件用 toolbox.context.set 设置的键，可用 !、&&、||、比较和括号" },
+        "when": {
+          "type": "object",
+          "properties": {
+            "languages": { "type": "array", "items": { "type": "string" } },
+            "fileExtensions": { "type": "array", "items": { "type": "string" } },
+            "selection": { "type": "boolean" },
+            "context": { "type": "string", "description": "插件上下文键的条件，如 loggedIn && mode == 'json'" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["menu"],
+      "additionalProperties": false
+    },
+    "keybinding": {
+      "type": "object",
+      "description": "快捷键（contributes.keybindings[]）",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "命令 id；插件写本插件的命令 id"
+        },
+        "key": {
+          "type": "string",
+          "description": "如 cmd+shift+k（插件快捷键需要 cmd 或 ctrl）"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "command",
+        "key"
+      ],
+      "additionalProperties": false
+    },
+    "languageServiceProvider": {
+      "type": "object",
+      "description": "内置格式化器、预览器、校验器（仅内置扩展）",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "语言 id"
+        },
+        "fileExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "扩展名"
+        },
+        "fallback": {
+          "type": "boolean",
+          "description": "作为所有语言的兜底"
+        },
+        "runOn": {
+          "type": "string",
+          "description": "校验器何时运行",
+          "enum": [
+            "change",
+            "save",
+            "manual"
+          ]
+        },
+        "handler": {
+          "type": "string",
+          "description": "原生实现名（仅内置扩展）",
+          "enum": [
+            "structured",
+            "code",
+            "markdown",
+            "html",
+            "tool"
+          ]
+        },
+        "options": {
+          "type": "object",
+          "description": "实现专用的选项",
+          "properties": {
+            "parsers": {
+              "type": "object",
+              "description": "Prettier：语言 id → 解析器",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "handler"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

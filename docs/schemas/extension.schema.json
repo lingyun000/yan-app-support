@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lingyun000.github.io/yan-app-support/docs/schemas/extension.schema.json",
+  "title": "ToolBox 扩展清单（extension.json）",
+  "description": "内置扩展（ToolBoxApp/Resources/BuiltInExtensions）的清单。第三方使用 plugin.json，数据贡献点相同。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "$ref": "contributions.schema.json#/$defs/identifier"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "contributions.schema.json#/$defs/version"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": { "type": "string", "description": "SF Symbol 名称，显示在插件中心" },
+    "overview": { "type": "string", "description": "插件中心“概览”页的说明" },
+    "settings": {
+      "type": "array",
+      "description": "插件中心“设置”页的入口，每项打开设置窗口的一个页面",
+      "items": {
+        "type": "object",
+        "properties": { "title": { "type": "string" }, "page": { "type": "string", "description": "settingsPages 的 id" } },
+        "required": ["title", "page"],
+        "additionalProperties": false
+      }
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "builtin",
+        "user",
+        "development"
+      ]
+    },
+    "core": {
+      "type": "boolean",
+      "description": "核心扩展不能停用（仅内置）"
+    },
+    "priority": {
+      "type": "integer",
+      "description": "同 id 贡献冲突时，优先级高者生效"
+    },
+    "engines": {
+      "type": "object",
+      "properties": {
+        "toolbox": {
+          "type": "string",
+          "description": "兼容的扩展 API 范围，如 >=7"
+        }
+      },
+      "additionalProperties": false
+    },
+    "extensionDependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "依赖的扩展 id，可写 id@版本范围（如 com.example.base@^2.1）；缺失、未启用或版本不符时本扩展不生效，并显示原因"
+    },
+    "activationEvents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "onStartup、onLanguage:<id> 等"
+    },
+    "contributes": {
+      "type": "object",
+      "description": "贡献点",
+      "properties": {
+        "languages": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/language"
+          }
+        },
+        "languageGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/languageGroup"
+          }
+        },
+        "grammars": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/grammar"
+          }
+        },
+        "textTools": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/textTool"
+          }
+        },
+        "toolCategories": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/toolCategory"
+          }
+        },
+        "themes": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/theme"
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/appCommand"
+          }
+        },
+        "aiProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/aiProvider"
+          }
+        },
+        "pasteDetectors": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/pasteDetector"
+          }
+        },
+        "settingsPages": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/settingsPage"
+          }
+        },
+        "menus": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/appMenuItem"
+          }
+        },
+        "keybindings": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/keybinding"
+          }
+        },
+        "workspaceTools": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/workspaceTool"
+          }
+        },
+        "workspaceToolCategories": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/workspaceToolCategory"
+          }
+        },
+        "formatterProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/languageServiceProvider"
+          }
+        },
+        "previewProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/languageServiceProvider"
+          }
+        },
+        "validatorProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/languageServiceProvider"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "version"
+  ],
+  "additionalProperties": false
+}

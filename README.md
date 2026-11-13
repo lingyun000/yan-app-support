@@ -4,6 +4,7 @@ macOS 应用“砚”的公开支持网站、隐私政策和真实界面截图�
 
 - 网站：https://lingyun000.github.io/yan-app-support/
 - 隐私政策：https://lingyun000.github.io/yan-app-support/privacy.html
+- 插件开发预览：https://lingyun000.github.io/yan-app-support/plugins.html
 - 使用支持：https://lingyun000.github.io/yan-app-support/support.html
 - 反馈：https://github.com/lingyun000/yan-app-support/issues
 
@@ -22,3 +23,14 @@ macOS 应用“砚”的公开支持网站、隐私政策和真实界面截图�
 The overview, support page and complete privacy policy provide English and Chinese. First visits default to English; the language switch remembers the reader's selection locally. No analytics are added.
 
 `assets/yan-demo-web.mp4` is the developer-provided real Mac recording from 2026-10-01 14:05:52, showing launch and typical use. It is published with the developer's authorization. The web MP4 is compressed from 17.8 MB to about 1.7 MB at 1280 px width, with progressive playback. Video data is not loaded until requested. The full-resolution original recording remains on the developer's Mac and in the Apple review attachment. English gallery images are real frames from the developer's English-interface recording. Chinese pages retain the Chinese screenshots.
+
+## 插件开发文档
+
+手册的 Markdown 源文件位于 `docs/`，GitHub Pages 直接发布同目录的 HTML。修改源文件后，重新生成 HTML，并将两者一并提交。
+
+```sh
+python3 -m pip install markdown-it-py==4.3.0
+python3 scripts/render-guides.py
+```
+
+更新插件清单时同步检查 `docs/schemas/` 的 schema 文件。发布支持插件导入的应用版本后，更新文档入口和两份手册的兼容说明。

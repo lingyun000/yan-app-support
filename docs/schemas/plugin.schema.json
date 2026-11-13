@@ -1,0 +1,871 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lingyun000.github.io/yan-app-support/docs/schemas/plugin.schema.json",
+  "title": "ToolBox 插件清单（plugin.json）",
+  "description": "见 Docs/PLUGIN_DEVELOPER_GUIDE.md 与 Docs/EXTENSION_DEVELOPER_GUIDE.md。",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "$ref": "contributions.schema.json#/$defs/identifier"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "contributions.schema.json#/$defs/version"
+    },
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "homepage": {
+      "type": "string",
+      "description": "http(s) 链接"
+    },
+    "icon": {
+      "type": "string",
+      "description": "SF Symbol 名称，或插件包内的 png、jpg、heic 图片路径"
+    },
+    "readme": {
+      "type": "string",
+      "description": "插件包内的 Markdown 说明文件；省略时使用 README.md"
+    },
+    "changelog": {
+      "type": "string",
+      "description": "插件包内的 Markdown 更新记录；省略时使用 CHANGELOG.md"
+    },
+    "repository": {
+      "type": "string",
+      "description": "http(s) 链接"
+    },
+    "license": {
+      "type": "string"
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "extensionDependencies": {
+      "type": "array",
+      "description": "依赖的扩展 id，可写 id@版本范围（如 com.example.base@^2.1）；缺失、未启用或版本不符时本扩展不生效，并显示原因；可以调用这些插件导出的函数",
+      "items": {
+        "type": "string"
+      }
+    },
+    "activationEvents": {
+      "type": "array",
+      "description": "唤醒时机：onStartup、onLanguage:<id>、onCommand:<id>、onWorkspaceTool:<id>",
+      "items": {
+        "type": "string"
+      }
+    },
+    "minAppVersion": {
+      "$ref": "contributions.schema.json#/$defs/version"
+    },
+    "apiVersion": {
+      "type": "integer",
+      "description": "编写时的插件 API 版本（toolbox.version）",
+      "minimum": 1
+    },
+    "main": {
+      "type": "string",
+      "description": "脚本入口（如 main.js）；只提供数据（主题、语言、语法、快捷键）的插件可以省略"
+    },
+    "contributes": {
+      "type": "object",
+      "description": "插件提供的内容",
+      "properties": {
+        "textActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/textAction"
+          }
+        },
+        "customEditors": {
+          "type": "array",
+          "description": "用本插件的面板显示文档，页面通过 toolbox.editor 读写；按语言或扩展名匹配，与预览器一起裁决",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "panel"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "panel": {
+                "type": "string"
+              },
+              "contentCondition": {
+                "description": "在匹配语言或扩展名后，仅当内容满足此条件才显示自定义编辑器及其视图切换栏。",
+                "enum": ["jsonObjectArray"]
+              },
+              "languages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "fileExtensions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "previewers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/previewer"
+          }
+        },
+        "panels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/panel"
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command"
+          }
+        },
+        "configuration": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/setting"
+          }
+        },
+        "pages": {
+          "type": "array",
+          "description": "插件中心详情页的标签，每个显示本插件的一个面板",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "panel"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "panel": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "settings"
+                ],
+                "description": "settings：显示在“设置”标签"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "documentOpened",
+              "documentSaved",
+              "documentClosed",
+              "activeDocumentChanged",
+              "languageChanged",
+              "settingsChanged",
+              "textChanged",
+              "selectionChanged",
+              "willSave"
+            ]
+          }
+        },
+        "formatters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/provider"
+          }
+        },
+        "validators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/provider"
+          }
+        },
+        "languageAssociations": {
+          "type": "object",
+          "description": "扩展名 → 语言（如 \"env\": \"properties\"）",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "hoverProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/provider"
+          }
+        },
+        "completionProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/provider"
+          }
+        },
+        "statusItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/statusItem"
+          }
+        },
+        "inspectorSections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inspectorSection"
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/language"
+          }
+        },
+        "languageGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/languageGroup"
+          }
+        },
+        "grammars": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/grammar"
+          }
+        },
+        "textTools": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/textTool"
+          }
+        },
+        "toolCategories": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/toolCategory"
+          }
+        },
+        "themes": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/theme"
+          }
+        },
+        "workspaceTools": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/workspaceTool"
+          }
+        },
+        "pasteDetectors": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/pasteDetector"
+          }
+        },
+        "settingsPages": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/settingsPage"
+          }
+        },
+        "menus": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/appMenuItem"
+          }
+        },
+        "keybindings": {
+          "type": "array",
+          "items": {
+            "$ref": "contributions.schema.json#/$defs/keybinding"
+          }
+        },
+        "languageFeatures": {
+          "type": "array",
+          "description": "语言功能（toolbox.languages.register(kind, id, fn)）：定义跳转、符号、代码操作、重命名、选区格式化、参数提示、内联提示、折叠",
+          "items": {
+            "$ref": "#/$defs/provider",
+            "required": [
+              "id",
+              "title",
+              "kind"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "description": "需要超过缺省值的资源上限；安装确认框会列出提高的项。等待（网络、对话框、定时器）没有时间上限，这里只限制内存中一次持有的大小和后台连续计算的时间",
+      "properties": {
+        "storageBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1073741824,
+          "description": "toolbox.storage 总大小（字节），缺省 16 MiB，最多 1 GiB"
+        },
+        "fileReadBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1073741824,
+          "description": "一次整体读取的文件大小（字节），缺省 64 MiB，最多 1 GiB；分段读取不受限"
+        },
+        "responseBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1073741824,
+          "description": "保存在内存中的网络响应（字节），缺省 64 MiB，最多 1 GiB；responseType 为 stream 或 file 时不受限"
+        },
+        "transferBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 536870912,
+          "description": "插件与应用之间一次传递的数据（字节）：返回值、写入编辑器或文件的文本、面板消息，缺省 64 MiB，最多 512 MiB"
+        },
+        "documentBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 134217728,
+          "description": "整篇交给校验器、悬停、补全、事件的文档（字节），缺省 8 MiB，最多 128 MiB；更大的文档给出光标附近的片段"
+        },
+        "memoryBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 17179869184,
+          "description": "插件进程的内存（字节），缺省 2 GiB，最多 16 GiB"
+        },
+        "privateDiskBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 68719476736,
+          "description": "私有文件与临时下载的总字节数"
+        },
+        "networkConnections": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 512,
+          "description": "每个插件同时进行的网络连接数"
+        },
+        "busySeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600,
+          "description": "自动运行的代码（校验器、预览器、事件）连续计算多少秒后被停止，缺省 120，最多 3600；用户触发的代码只提示、不自动停止"
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "description": "权限（安装时由用户同意）",
+      "properties": {
+        "network": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "允许访问的主机：api.example.com、*.example.com（含 example.com 本身）、localhost:8080（限定端口）、192.168.1.10、192.168.0.0/16（网段）；只写 \"*\" 表示访问所有网站（安装时需用户明确同意）",
+          "maxItems": 100
+        },
+        "commands": {
+          "type": "array",
+          "description": "可以执行的应用命令，如 file.save 或 tools.*；本插件自己的命令不需要声明",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clipboard": {
+          "description": "true：读取和写入剪贴板；\"write\"：只写入",
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "write"
+            }
+          ]
+        },
+        "documents": {
+          "type": "string",
+          "description": "读取文档",
+          "enum": [
+            "active",
+            "all"
+          ]
+        },
+        "backgroundLanguageNetwork": {
+          "type": "boolean",
+          "description": "允许后台悬停、补全及自动语言服务将当前文档输入发送到 network 声明的目的地"
+        },
+        "background": {
+          "type": "boolean",
+          "description": "插件进程常驻，保持长连接和定时任务；可以在插件中心停止"
+        }
+      },
+      "additionalProperties": false
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+      },
+      "description": "其他插件可以调用的函数（toolbox.extensions.export）；只有导出函数的库插件也可以安装"
+    },
+    "singleProcess": {
+      "type": "boolean",
+      "description": "所有代码共用一个进程（共享全局状态）；长时间计算会延迟校验器和预览。联网插件需要同时声明 documents: all"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "version",
+    "contributes"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "textAction": {
+      "type": "object",
+      "description": "文本动作：收到文本，返回文本",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "语言 id 或别名"
+        },
+        "resultTarget": {
+          "type": "string",
+          "description": "结果去向（缺省按用户设置）",
+          "enum": [
+            "replace",
+            "newTab",
+            "preview"
+          ]
+        },
+        "resultLanguage": {
+          "type": "string",
+          "description": "结果文本的语言"
+        },
+        "keywords": {
+          "type": "string",
+          "description": "搜索词"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "previewer": {
+      "type": "object",
+      "description": "预览器：返回 HTML",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fileExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "扩展名（不含点）"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "语言 id 或别名"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "panel": {
+      "type": "object",
+      "description": "工具面板：一个 HTML 页面",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string",
+          "description": "面板页面（插件内的相对路径）"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "multiple": {
+          "type": "boolean",
+          "description": "允许同时打开多个窗口（toolbox.panels.open(id, { newWindow: true })）"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "entry"
+      ],
+      "additionalProperties": false
+    },
+    "command": {
+      "type": "object",
+      "description": "通用命令",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "keywords": {
+          "type": "string"
+        },
+        "menus": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "editorContext",
+              "tools",
+              "palette"
+            ]
+          },
+          "description": "出现的位置（缺省全部）"
+        },
+        "when": {
+          "type": "object",
+          "description": "何时可用",
+          "properties": {
+            "languages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "语言 id 或别名"
+            },
+            "fileExtensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "扩展名（不含点）"
+            },
+            "selection": {
+              "type": "boolean",
+              "description": "需要有选区"
+            },
+            "context": {
+              "type": "string",
+              "description": "插件上下文键的条件，如 loggedIn && (mode == 'json' || count > 3)（toolbox.context.set）；支持 ! == != < <= > >= && || 和括号"
+            }
+          },
+          "additionalProperties": false
+        },
+        "keybinding": {
+          "type": "string",
+          "description": "快捷键，如 cmd+shift+k"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "setting": {
+      "type": "object",
+      "description": "插件设置",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "enum",
+            "secret",
+            "text",
+            "array",
+            "object",
+            "color"
+          ]
+        },
+        "default": {},
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "type 为 enum 时的选项"
+        },
+        "description": {
+          "type": "string"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "string/text：整个值必须匹配的正则"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "array",
+              "object"
+            ]
+          },
+          "description": "object：允许的字段及类型"
+        },
+        "scope": {
+          "enum": [
+            "language"
+          ],
+          "description": "按语言分别设置"
+        }
+      },
+      "required": [
+        "key",
+        "title",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "provider": {
+      "type": "object",
+      "description": "格式化器、校验器、悬停或补全提供者（需要 languages 或 fileExtensions）",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fileExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "扩展名（不含点）"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "语言 id 或别名"
+        },
+        "runOn": {
+          "type": "string",
+          "description": "校验器何时运行（缺省 change）",
+          "enum": [
+            "change",
+            "save",
+            "manual"
+          ]
+        },
+        "triggerCharacters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "输入后自动触发的字符：补全提供者用来打开补全列表；参数提示（kind 为 signatureHelp）缺省为 ( 和 ,"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "definition",
+            "symbols",
+            "codeActions",
+            "rename",
+            "rangeFormat",
+            "signatureHelp",
+            "inlayHints",
+            "folding",
+            "references",
+            "semanticTokens",
+            "inlineCompletion",
+            "codeLens",
+            "inspect"
+          ],
+          "description": "languageFeatures 中：功能种类"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "statusItem": {
+      "type": "object",
+      "description": "状态栏项",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.\\-]{1,64}$"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tooltip": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string",
+          "description": "点击时运行的本插件命令 id"
+        },
+        "alignment": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "inspectorSection": {
+      "type": "object",
+      "description": "检查器分区",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.\\-]{1,64}$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "panel": {
+          "type": "string",
+          "description": "本插件的面板 id"
+        },
+        "height": {
+          "type": "number"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "语言 id 或别名"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "panel"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

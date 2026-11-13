@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-title-en="Plugin Development · Yan.app" data-title-zh="插件开发 · 砚"
+  data-description-en="Develop plugins for Yan with the JavaScript and declarative extension guides."
+  data-description-zh="砚的插件开发文档，包含 JavaScript API、声明式扩展和清单参考。">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Develop plugins for Yan with the JavaScript and declarative extension guides.">
+  <title>Plugin Development · Yan.app</title>
+  <link rel="icon" href="assets/icon.png">
+  <link rel="stylesheet" href="style.css?v=3">
+  <script src="language.js?v=2" defer></script>
+</head>
+<body>
+  <div class="language-switch" role="group" aria-label="Website language">
+    <button type="button" data-lang="en" aria-pressed="true">English</button>
+    <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+  </div>
+  <div data-language="en" lang="en">
+    <header>
+      <a class="brand" href="index.html"><img src="assets/icon.png" alt="">Yan.app</a>
+      <nav aria-label="Main navigation">
+        <a href="index.html">Overview</a>
+        <a href="plugins.html" aria-current="page">Plugin Docs</a>
+        <a href="support.html">Support</a>
+      </nav>
+    </header>
+    <main class="document">
+      <h1>Plugin development</h1>
+      <p class="notice"><strong>Developer preview.</strong> The current Mac App Store release (1.0.3) does not support plugin imports. To try the examples, use a build with the Plugin Center.</p>
+      <h2><a href="docs/plugin-guide.html">JavaScript plugin guide (Chinese)</a></h2>
+      <p>Build a text action, then explore commands, tool panels, editor APIs, permissions, debugging, and packaging.</p>
+      <h2><a href="docs/extension-guide.html">Declarative extension guide (Chinese)</a></h2>
+      <p>Add languages, syntax highlighting, themes, and keybindings through a manifest.</p>
+      <h2>Manifest schemas</h2>
+      <ul>
+        <li><a href="docs/schemas/plugin.schema.json">Plugin manifest</a></li>
+        <li><a href="docs/schemas/contributions.schema.json">Shared contribution definitions</a></li>
+      </ul>
+    </main>
+    <footer><span>© 2026 Yan · lingyun000</span><a href="support.html">Support</a></footer>
+  </div>
+  <div data-language="zh" lang="zh-CN" hidden>
+    <header>
+      <a class="brand" href="index.html"><img src="assets/icon.png" alt="">砚</a>
+      <nav aria-label="主导航">
+        <a href="index.html">概览</a>
+        <a href="plugins.html" aria-current="page">插件开发</a>
+        <a href="support.html">支持</a>
+      </nav>
+    </header>
+    <main class="document">
+      <h1>插件开发</h1>
+      <p class="notice"><strong>开发预览。</strong>当前 Mac App Store 版 1.0.3 尚未提供插件导入。运行示例需要带有插件中心的构建。</p>
+      <h2><a href="docs/plugin-guide.html">JavaScript 插件开发手册</a></h2>
+      <p>从第一个文本动作开始，了解命令、工具面板、编辑器 API、权限、调试与打包。</p>
+      <h2><a href="docs/extension-guide.html">声明式扩展开发手册</a></h2>
+      <p>通过清单添加语言、语法高亮、主题与快捷键。</p>
+      <h2>JSON Schema</h2>
+      <ul>
+        <li><a href="docs/schemas/plugin.schema.json">插件清单</a></li>
+        <li><a href="docs/schemas/contributions.schema.json">共用贡献点定义</a></li>
+      </ul>
+    </main>
+    <footer><span>© 2026 砚开发者 · lingyun000</span><a href="support.html">支持与反馈</a></footer>
+  </div>
+</body>
+</html>
